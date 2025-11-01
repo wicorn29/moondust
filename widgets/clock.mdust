@@ -1,0 +1,80 @@
+<style>
+  body {
+    margin: 0;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: monospace;
+    text-align: center;
+  }
+
+  #time {
+    display: flex;
+    align-items: flex-start;
+    gap: 1vmin;
+  }
+
+  #clock {
+    font-size: 20vmin; /* scales with the smaller of width/height */
+    line-height: 1;
+  }
+
+  #ampm {
+    font-size: 5vmin;
+    color: #888;
+    align-self: flex-end;
+    margin-bottom: 0.5vmin;
+  }
+
+  #date {
+    font-size: 5vmin;
+    color: #888;
+    margin-top: 2vmin;
+  }
+</style>
+
+<body>
+  <div id="time">
+    <span id="clock">00:00</span>
+    <span id="ampm">AM</span>
+  </div>
+  <div id="date">Monday, January 1</div>
+
+  <script>
+    let use24Hour = false;
+
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      let ampm = '';
+      if (!use24Hour) {
+        ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+      }
+
+      const options = { weekday: 'long', month: 'long', day: 'numeric' };
+      document.getElementById('clock').textContent = `${hours}:${minutes}`;
+      document.getElementById('ampm').textContent = ampm;
+      document.getElementById('date').textContent = now.toLocaleDateString(undefined, options);
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (data.type === 'set24Hour') {
+        use24Hour = !!data.value;
+        updateClock();
+      }
+      if (data.type === 'setColor') {
+        document.body.style.color = data.value;
+      }
+    });
+  </script>
+</body>
